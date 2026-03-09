@@ -1,0 +1,23 @@
+{
+  "sectionLabel": "Custom Links",
+  "placement": {
+    "position": "before",
+    "anchorText": "New Chat"
+  },
+  "items": [
+    {
+      "id": "docs",
+      "label": "Documentation",
+      "type": "external",
+      "url": "https://greshamsmith.com",
+      "newTab": true
+    },
+    {
+      "id": "about",
+      "label": "About This Instance",
+      "type": "modal",
+      "modalTitle": "About This Instance",
+      "modalHtml": "<p>Environment notes go here, Booga Traus.</p>"
+    }
+  ]
+}
