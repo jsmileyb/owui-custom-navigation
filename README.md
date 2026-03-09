@@ -1,11 +1,13 @@
 # OWUI Custom Nav Overlay
 
 ## Purpose
+
 This project provides a portable, prune-style customization overlay for Open WebUI running in Docker.
 You copy these files into the container, run a Python patcher, and optionally restart the container.
 No local Open WebUI source checkout or host-side image rebuild is required.
 
 ## Prerequisites
+
 - A running Open WebUI Docker container
 - `docker cp`
 - `docker exec`
@@ -13,6 +15,7 @@ No local Open WebUI source checkout or host-side image rebuild is required.
 - Container name or ID (examples use `open-webui`)
 
 ## Folder Structure
+
 ```text
 owui-custom-nav/
   patch_openwebui.py
@@ -23,11 +26,13 @@ owui-custom-nav/
 ```
 
 ## Step 1: Copy Files Into The Container
+
 ```bash
 docker cp owui-custom-nav/. open-webui:/app/custom-nav/
 ```
 
 ## Step 2: Run Interactively Inside Container
+
 ```bash
 docker exec -it open-webui bash
 cd /app/custom-nav
@@ -35,16 +40,19 @@ python3 patch_openwebui.py --apply
 ```
 
 Optional preview mode:
+
 ```bash
 python3 patch_openwebui.py --dry-run --verbose
 ```
 
 ## Step 3: Restart Container If Needed
+
 ```bash
 docker restart open-webui
 ```
 
 ## Step 4: Restore Original Files
+
 ```bash
 docker exec -it open-webui bash
 cd /app/custom-nav
@@ -55,7 +63,9 @@ docker restart open-webui
 ## Updating An Already-Patched Running Container
 
 ### Full update (JS/CSS/config/patcher changes)
+
 Use this when you changed any of:
+
 - `nav-injector.js`
 - `nav-injector.css`
 - `patch_openwebui.py`
@@ -71,6 +81,7 @@ docker restart open-webui
 ```
 
 ### Config-only update (usually no re-apply needed)
+
 Use this when only `nav-config.json` changed.
 
 ```bash
@@ -81,15 +92,18 @@ docker exec -it open-webui bash -lc "cp /app/custom-nav/nav-config.json /app/bac
 Then refresh the browser. Restart the container only if you suspect aggressive caching.
 
 ## Runtime Config Updates
+
 `nav-injector.js` fetches `/custom/nav-config.json` at runtime (with cache-busting), so you can edit `nav-config.json` and copy only that file without re-running `--apply`.
 
 Example:
+
 ```bash
 docker cp nav-config.json open-webui:/app/custom-nav/nav-config.json
 docker exec -it open-webui bash -lc "cp /app/custom-nav/nav-config.json /app/backend/open_webui/frontend/custom/nav-config.json"
 ```
 
 ### Positioning The Custom Section
+
 You can place the custom section relative to a sidebar item (for example, above `New Chat`) using `placement`:
 
 ```json
@@ -107,6 +121,7 @@ You can place the custom section relative to a sidebar item (for example, above 
 If the anchor is not found, the injector falls back to appending at the bottom.
 
 ### Adding OOTB-Style Icons
+
 Each item can include SVG stroke-path icon settings:
 
 ```json
@@ -127,13 +142,15 @@ Each item can include SVG stroke-path icon settings:
 - `iconStrokeWidth`: optional, defaults to `2`
 
 ### How To Create An `iconPath`
-1. Pick an SVG icon source (for example Heroicons outline icons).
+
+1. Pick an SVG icon source (for example [Heroicons](https://heroicons.com/) outline icons).
 2. Open the SVG and copy the `<path d="...">` value.
 3. Paste that value into `iconPath` in `nav-config.json`.
 4. Copy the SVG `viewBox` into `iconViewBox` (or keep the default `0 0 24 24`).
 5. Set `iconStrokeWidth` to match the source icon (commonly `1.5` or `2`).
 
 Example source SVG:
+
 ```xml
 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
   <path d="M12 4v16m8-8H4" />
@@ -141,6 +158,7 @@ Example source SVG:
 ```
 
 Matching config:
+
 ```json
 {
   "id": "new-item",
@@ -155,10 +173,12 @@ Matching config:
 ```
 
 Notes:
+
 - If the icon does not show, check browser devtools for malformed `iconPath` data.
 - Complex icons with multiple `<path>` elements are not supported in this v1 shape; use a single-path icon.
 
 ## What The Patcher Does
+
 - Discovers likely frontend build directories
 - Finds a stable shell file (`index.html` preferred)
 - Copies:
@@ -174,7 +194,9 @@ Notes:
 - Writes `.customnav-manifest.json` for restore metadata
 
 ## Selector Strategy (Sidebar Fallback)
+
 `nav-injector.js` attempts in this order:
+
 1. Semantic/landmark containers (`aside`, `nav`, `#nav`, sidebar-like test IDs)
 2. Containers with dense internal nav link/button patterns
 3. Injection near bottom of selected sidebar host
@@ -183,34 +205,44 @@ Notes:
 ## Troubleshooting
 
 ### Locate Actual App Shell Files
+
 Inside the container:
+
 ```bash
 find /app -maxdepth 5 -type f \( -name "index.html" -o -name "app.html" \)
 ```
+
 Then run:
+
 ```bash
 python3 patch_openwebui.py --dry-run --verbose
 ```
 
 ### If Selectors Fail After OWUI Upgrade
+
 - Open browser devtools and inspect current sidebar markup.
 - Update selector logic in `nav-injector.js`.
 - Re-copy `nav-injector.js` into container custom directory.
 - Refresh the browser (or restart container if needed).
 
 ### Verify Script/CSS Load
+
 In browser devtools:
+
 - Network tab: confirm `/custom/nav-injector.js` and `/custom/nav-injector.css` return 200.
 - Console: check for `[custom-nav]` warnings.
 - Elements tab: verify a node with `data-custom-nav-root="true"` under the sidebar.
 
 ### Patcher Cannot Find Entry Point
+
 If the patcher exits safely with no patch target:
+
 - use `--dry-run --verbose` to view checked candidates
 - confirm `FRONTEND_BUILD_DIR` inside container
 - manually inspect selected frontend directory for `index.html` or `app.html`
 
 ## CLI Reference
+
 ```bash
 python3 patch_openwebui.py --dry-run [--verbose]
 python3 patch_openwebui.py --apply [--verbose]
