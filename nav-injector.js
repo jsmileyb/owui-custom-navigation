@@ -176,7 +176,13 @@
           label: item.label,
           type: "external",
           url: item.url,
-          newTab: Boolean(item.newTab)
+          newTab: Boolean(item.newTab),
+          iconPath: typeof item.iconPath === "string" ? item.iconPath : "",
+          iconViewBox: typeof item.iconViewBox === "string" ? item.iconViewBox : "0 0 24 24",
+          iconStrokeWidth:
+            typeof item.iconStrokeWidth === "number" && item.iconStrokeWidth > 0
+              ? item.iconStrokeWidth
+              : 2
         });
         return;
       }
@@ -189,7 +195,13 @@
           label: item.label,
           type: "modal",
           modalTitle: item.modalTitle,
-          modalHtml: item.modalHtml
+          modalHtml: item.modalHtml,
+          iconPath: typeof item.iconPath === "string" ? item.iconPath : "",
+          iconViewBox: typeof item.iconViewBox === "string" ? item.iconViewBox : "0 0 24 24",
+          iconStrokeWidth:
+            typeof item.iconStrokeWidth === "number" && item.iconStrokeWidth > 0
+              ? item.iconStrokeWidth
+              : 2
         });
       }
     });
@@ -335,7 +347,10 @@
             label: item.label,
             type: item.type,
             url: item.url,
-            newTab: Boolean(item.newTab)
+            newTab: Boolean(item.newTab),
+            iconPath: item.iconPath,
+            iconViewBox: item.iconViewBox,
+            iconStrokeWidth: item.iconStrokeWidth
           };
         }
         return {
@@ -343,11 +358,43 @@
           label: item.label,
           type: item.type,
           modalTitle: item.modalTitle,
-          modalHtml: item.modalHtml
+          modalHtml: item.modalHtml,
+          iconPath: item.iconPath,
+          iconViewBox: item.iconViewBox,
+          iconStrokeWidth: item.iconStrokeWidth
         };
       })
     };
     return JSON.stringify(normalized);
+  }
+
+  function defaultIconPath(item) {
+    if (item.type === "external") {
+      return "M13.5 6H18m0 0v4.5M18 6l-7.5 7.5M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6";
+    }
+    return "M12 8h.01M11 12h1v4h1m-1 6a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z";
+  }
+
+  function buildItemIcon(item) {
+    var iconWrap = document.createElement("div");
+    iconWrap.className = "self-center";
+
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("viewBox", item.iconViewBox || "0 0 24 24");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("stroke-width", String(item.iconStrokeWidth || 2));
+    svg.setAttribute("class", "size-4.5");
+
+    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("stroke-linecap", "round");
+    path.setAttribute("stroke-linejoin", "round");
+    path.setAttribute("d", item.iconPath || defaultIconPath(item));
+    svg.appendChild(path);
+    iconWrap.appendChild(svg);
+    return iconWrap;
   }
 
   function findAnchorElement(host, placement) {
@@ -411,38 +458,52 @@
     closeModal();
     var overlay = document.createElement("div");
     overlay.setAttribute(MODAL_ATTR, "true");
-    overlay.setAttribute("role", "presentation");
-    overlay.className = "custom-nav-modal-overlay";
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("style", "scrollbar-gutter: stable;");
+    overlay.className =
+      "modal fixed top-0 right-0 left-0 bottom-0 bg-black/30 dark:bg-black/60 w-full h-screen max-h-[100dvh] p-3 flex justify-center z-9999 overflow-y-auto overscroll-contain svelte-1vr5p4p";
 
     var dialog = document.createElement("div");
-    dialog.className = "custom-nav-modal-dialog";
-    dialog.setAttribute("role", "dialog");
-    dialog.setAttribute("aria-modal", "true");
-    dialog.setAttribute("aria-label", title);
+    dialog.className =
+      "m-auto max-w-full w-[70rem] mx-2 shadow-3xl min-h-fit scrollbar-hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-4xl border border-white dark:border-gray-850 svelte-1vr5p4p";
+    dialog.setAttribute("role", "document");
+    dialog.addEventListener("click", function (evt) {
+      evt.stopPropagation();
+    });
+
+    var shell = document.createElement("div");
+    shell.className = "py-3 dark:text-gray-300 text-gray-700";
 
     var header = document.createElement("div");
-    header.className = "custom-nav-modal-header";
+    header.className = "px-4 pb-1.5 flex items-center justify-between gap-3";
 
     var heading = document.createElement("h2");
-    heading.className = "custom-nav-modal-title";
+    heading.className = "text-base font-medium";
     heading.textContent = title;
+    heading.id = "custom-nav-modal-title";
+    overlay.setAttribute("aria-labelledby", heading.id);
 
     var closeBtn = document.createElement("button");
     closeBtn.type = "button";
-    closeBtn.className = "custom-nav-modal-close";
+    closeBtn.className =
+      "px-2.5 py-1.5 rounded-lg text-sm border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-850 transition";
     closeBtn.textContent = "Close";
+    closeBtn.setAttribute("aria-label", "Close modal");
 
     var body = document.createElement("div");
-    body.className = "custom-nav-modal-body";
+    body.className = "px-4 pb-2 text-sm";
     body.innerHTML = sanitizeHtml(html);
 
     header.appendChild(heading);
     header.appendChild(closeBtn);
-    dialog.appendChild(header);
-    dialog.appendChild(body);
+    shell.appendChild(header);
+    shell.appendChild(body);
+    dialog.appendChild(shell);
     overlay.appendChild(dialog);
     document.body.appendChild(overlay);
     document.body.style.overflow = "hidden";
+    closeBtn.focus();
 
     function onEsc(evt) {
       if (evt.key === "Escape") {
@@ -481,13 +542,13 @@
 
     config.items.forEach(function (item) {
       var li = document.createElement("li");
-      li.className = "custom-nav-item";
+      li.className = "custom-nav-item px-[0.4375rem] flex justify-center text-gray-800 dark:text-gray-200";
       li.setAttribute(ITEM_ATTR, item.id);
 
       if (item.type === "external") {
         var a = document.createElement("a");
-        a.className = "custom-nav-link";
-        a.textContent = item.label;
+        a.className =
+          "custom-nav-link group grow flex items-center space-x-3 rounded-2xl px-2.5 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 transition outline-none";
         a.href = item.url;
         bindIsolatedActivate(a, function () {
           if (item.newTab) {
@@ -500,15 +561,31 @@
           a.target = "_blank";
           a.rel = "noopener noreferrer";
         }
+        a.appendChild(buildItemIcon(item));
+        var aLabelWrap = document.createElement("div");
+        aLabelWrap.className = "flex flex-1 self-center translate-y-[0.5px]";
+        var aLabel = document.createElement("div");
+        aLabel.className = "self-center text-sm font-primary";
+        aLabel.textContent = item.label;
+        aLabelWrap.appendChild(aLabel);
+        a.appendChild(aLabelWrap);
         li.appendChild(a);
       } else if (item.type === "modal") {
         var btn = document.createElement("button");
         btn.type = "button";
-        btn.className = "custom-nav-link custom-nav-button";
-        btn.textContent = item.label;
+        btn.className =
+          "custom-nav-link custom-nav-button group grow flex items-center space-x-3 rounded-2xl px-2.5 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 transition outline-none";
         bindIsolatedActivate(btn, function () {
           openModal(item.modalTitle, item.modalHtml);
         });
+        btn.appendChild(buildItemIcon(item));
+        var bLabelWrap = document.createElement("div");
+        bLabelWrap.className = "flex flex-1 self-center translate-y-[0.5px]";
+        var bLabel = document.createElement("div");
+        bLabel.className = "self-center text-sm font-primary";
+        bLabel.textContent = item.label;
+        bLabelWrap.appendChild(bLabel);
+        btn.appendChild(bLabelWrap);
         li.appendChild(btn);
       }
 

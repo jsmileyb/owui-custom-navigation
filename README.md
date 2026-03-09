@@ -106,6 +106,58 @@ You can place the custom section relative to a sidebar item (for example, above 
 `position` supports: `before`, `after`, `top`, `bottom`.
 If the anchor is not found, the injector falls back to appending at the bottom.
 
+### Adding OOTB-Style Icons
+Each item can include SVG stroke-path icon settings:
+
+```json
+{
+  "id": "docs",
+  "label": "Documentation",
+  "type": "external",
+  "url": "https://example.com/docs",
+  "newTab": true,
+  "iconPath": "M...Z",
+  "iconViewBox": "0 0 24 24",
+  "iconStrokeWidth": 2
+}
+```
+
+- `iconPath`: SVG `path d` data (single path)
+- `iconViewBox`: optional, defaults to `0 0 24 24`
+- `iconStrokeWidth`: optional, defaults to `2`
+
+### How To Create An `iconPath`
+1. Pick an SVG icon source (for example Heroicons outline icons).
+2. Open the SVG and copy the `<path d="...">` value.
+3. Paste that value into `iconPath` in `nav-config.json`.
+4. Copy the SVG `viewBox` into `iconViewBox` (or keep the default `0 0 24 24`).
+5. Set `iconStrokeWidth` to match the source icon (commonly `1.5` or `2`).
+
+Example source SVG:
+```xml
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <path d="M12 4v16m8-8H4" />
+</svg>
+```
+
+Matching config:
+```json
+{
+  "id": "new-item",
+  "label": "My Link",
+  "type": "external",
+  "url": "https://example.com",
+  "newTab": true,
+  "iconPath": "M12 4v16m8-8H4",
+  "iconViewBox": "0 0 24 24",
+  "iconStrokeWidth": 2
+}
+```
+
+Notes:
+- If the icon does not show, check browser devtools for malformed `iconPath` data.
+- Complex icons with multiple `<path>` elements are not supported in this v1 shape; use a single-path icon.
+
 ## What The Patcher Does
 - Discovers likely frontend build directories
 - Finds a stable shell file (`index.html` preferred)
