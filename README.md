@@ -178,6 +178,30 @@ Notes:
 - Complex icons with multiple `<path>` elements are not supported in this v1 shape; use a single-path icon.
 - Modal items can optionally include `modalFooterLabel` to customize the footer button text (defaults to `Okay, Let's Go!`).
 
+### Home Page Pop-Up
+
+You can optionally show a modal when the home page (`/`) loads by adding `homePopup`:
+
+```json
+{
+  "homePopup": {
+    "enabled": true,
+    "modalTitle": "Welcome",
+    "modalHtml": "<p>Welcome to Open WebUI.</p>",
+    "modalFooterLabel": "Okay, Let's Go!",
+    "toolbarLabel": "Show Welcome",
+    "toolbarIconPath": "M12 8h.01M11 12h1v4h1m-1 6a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"
+  }
+}
+```
+
+Behavior:
+- Only shows on `location.pathname === "/"`.
+- Displays once per day per browser (local time).
+- If `enabled` is `false` or required fields are missing, it is ignored.
+- After the first show each day, a custom nav button appears in the sidebar for the rest of the day. Clicking it reopens the modal.
+- `toolbarIconPath` is optional; if omitted, the default modal icon is used.
+
 ## What The Patcher Does
 
 - Discovers likely frontend build directories
@@ -249,3 +273,5 @@ python3 patch_openwebui.py --dry-run [--verbose]
 python3 patch_openwebui.py --apply [--verbose]
 python3 patch_openwebui.py --restore [--verbose]
 ```
+
+

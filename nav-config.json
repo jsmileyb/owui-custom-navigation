@@ -4,6 +4,14 @@
     "position": "before",
     "anchorText": "New Chat"
   },
+  "homePopup": {
+    "enabled": true,
+    "modalTitle": "Downtime Alert",
+    "modalHtml": "<p>Welcome to Open WebUI.</p>",
+    "modalFooterLabel": "I understand",
+    "toolbarLabel": "Downtime Alert",
+    "toolbarIconPath": "M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+  },
   "items": [
     {
       "id": "aiPolicy",
@@ -28,7 +36,7 @@
       "label": "About This Instance",
       "type": "modal",
       "modalTitle": "About This Instance",
-      "modalHtml": "<p>Environment notes go here, Booga Traus.</p>",
+      "modalHtml": "<div class=\"ExternalClassBD055F81F776481DBA7CE5DB8F4C8177\"><div style=\"font-family:Calibri, Arial, Helvetica, sans-serif;font-size:11pt;color:rgb(50, 49, 48);background-color:transparent;\"><span style=\"font-family:Calibri, Arial, Helvetica, sans-serif;background-color:rgb(255, 255, 255);margin:0px 0px 16px;\">There will be<span>&nbsp;</span><b><u>two planned system downtimes occurring this week</u></b><span>&nbsp;</span>- Thursday, February 19, from 6 p.m. to 2 a.m. and Sunday, February 22, from 6 p.m. to 10 p.m.<br></span></div><div style=\"font-family:Calibri, Arial, Helvetica, sans-serif;font-size:11pt;color:rgb(50, 49, 48);background-color:transparent;\"><span style=\"font-family:Calibri, Arial, Helvetica, sans-serif;background-color:rgb(255, 255, 255);margin:0px 0px 16px;\"><br></span></div><div style=\"font-family:Calibri, Arial, Helvetica, sans-serif;font-size:11pt;color:rgb(50, 49, 48);background-color:transparent;\"><span style=\"font-family:Calibri, Arial, Helvetica, sans-serif;background-color:rgb(255, 255, 255);margin:0px 0px 16px;\">During that time, employees will experience outages that will impact the following systems. Please plan accordingly to avoid disruptions in your work.</span><div style=\"margin:0px;font-family:Calibri, Arial, Helvetica, sans-serif;background-color:rgb(255, 255, 255);font-size:14px;\"><ul><li>GIA platform</li><li><span></span>Newforma functions&nbsp;</li><li>Nashville shared workstations&nbsp;</li><li>Azure resources (AVD, Vantagepoint)&nbsp;</li><li>External phone calls in Microsoft Teams&nbsp;</li><li>Always on VPN&nbsp;</li><li>File servers (We\u2019ll communicate with employees working on the file servers before the outage occurs.)&nbsp;<span></span></li></ul></div><div style=\"margin:0px;font-family:Calibri, Arial, Helvetica, sans-serif;background-color:rgb(255, 255, 255);font-size:14px;\"><p>Be sure to plan your work deadlines around this scheduled monthly system downtime.</p></div></div></div>",
       "iconPath": "M12 8h.01M11 12h1v4h1m-1 6a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z",
       "iconStrokeWidth": 2
     }
