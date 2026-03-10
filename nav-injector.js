@@ -190,12 +190,17 @@
         if (typeof item.modalTitle !== "string" || typeof item.modalHtml !== "string") {
           return;
         }
+        var footerLabel =
+          typeof item.modalFooterLabel === "string" && item.modalFooterLabel.trim() !== ""
+            ? item.modalFooterLabel.trim()
+            : "Okay, Let's Go!";
         validItems.push({
           id: item.id,
           label: item.label,
           type: "modal",
           modalTitle: item.modalTitle,
           modalHtml: item.modalHtml,
+          modalFooterLabel: footerLabel,
           iconPath: typeof item.iconPath === "string" ? item.iconPath : "",
           iconViewBox: typeof item.iconViewBox === "string" ? item.iconViewBox : "0 0 24 24",
           iconStrokeWidth:
@@ -359,6 +364,7 @@
           type: item.type,
           modalTitle: item.modalTitle,
           modalHtml: item.modalHtml,
+          modalFooterLabel: item.modalFooterLabel,
           iconPath: item.iconPath,
           iconViewBox: item.iconViewBox,
           iconStrokeWidth: item.iconStrokeWidth
@@ -454,7 +460,7 @@
     }
   }
 
-  function openModal(title, html) {
+  function openModal(title, html, footerLabel) {
     closeModal();
     var overlay = document.createElement("div");
     overlay.setAttribute(MODAL_ATTR, "true");
@@ -473,32 +479,72 @@
     });
 
     var shell = document.createElement("div");
-    shell.className = "py-3 dark:text-gray-300 text-gray-700";
 
     var header = document.createElement("div");
-    header.className = "px-4 pb-1.5 flex items-center justify-between gap-3";
+    header.className = "px-6 pt-5 dark:text-white text-black";
 
-    var heading = document.createElement("h2");
-    heading.className = "text-base font-medium";
+    var headerRow = document.createElement("div");
+    headerRow.className = "flex justify-between items-start";
+
+    var heading = document.createElement("div");
+    heading.className = "text-xl font-medium";
     heading.textContent = title;
     heading.id = "custom-nav-modal-title";
     overlay.setAttribute("aria-labelledby", heading.id);
 
     var closeBtn = document.createElement("button");
     closeBtn.type = "button";
-    closeBtn.className =
-      "px-2.5 py-1.5 rounded-lg text-sm border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-850 transition";
-    closeBtn.textContent = "Close";
-    closeBtn.setAttribute("aria-label", "Close modal");
+    closeBtn.className = "self-center";
+    closeBtn.setAttribute("aria-label", "Close");
 
-    var body = document.createElement("div");
-    body.className = "px-4 pb-2 text-sm";
-    body.innerHTML = sanitizeHtml(html);
+    var closeSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    closeSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    closeSvg.setAttribute("viewBox", "0 0 20 20");
+    closeSvg.setAttribute("fill", "currentColor");
+    closeSvg.setAttribute("aria-hidden", "true");
+    closeSvg.setAttribute("stroke-width", "2");
+    closeSvg.setAttribute("class", "size-5");
 
-    header.appendChild(heading);
-    header.appendChild(closeBtn);
+    var closeSr = document.createElement("p");
+    closeSr.className = "sr-only";
+    closeSr.textContent = "Close";
+
+    var closePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    closePath.setAttribute(
+      "d",
+      "M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+    );
+
+    closeSvg.appendChild(closeSr);
+    closeSvg.appendChild(closePath);
+    closeBtn.appendChild(closeSvg);
+
+    headerRow.appendChild(heading);
+    headerRow.appendChild(closeBtn);
+    header.appendChild(headerRow);
+
+    var bodyOuter = document.createElement("div");
+    bodyOuter.className = "w-full p-4 px-5 text-gray-700 dark:text-gray-100";
+
+    var bodyInner = document.createElement("div");
+    bodyInner.className = "overflow-y-scroll max-h-[30rem] scrollbar-hidden";
+    bodyInner.innerHTML = sanitizeHtml(html);
+    bodyOuter.appendChild(bodyInner);
+
+    var footer = document.createElement("div");
+    footer.className = "flex justify-end pt-3 text-sm font-medium";
+
+    var footerBtn = document.createElement("button");
+    footerBtn.type = "button";
+    footerBtn.className =
+      "px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full";
+    footerBtn.textContent = footerLabel || "Okay, Let's Go!";
+
+    footer.appendChild(footerBtn);
+
     shell.appendChild(header);
-    shell.appendChild(body);
+    shell.appendChild(bodyOuter);
+    shell.appendChild(footer);
     dialog.appendChild(shell);
     overlay.appendChild(dialog);
     document.body.appendChild(overlay);
@@ -523,6 +569,7 @@
     }
 
     closeBtn.addEventListener("click", onCloseClick);
+    footerBtn.addEventListener("click", onCloseClick);
     overlay.addEventListener("click", onBackdropClick);
     document.addEventListener("keydown", onEsc, true);
   }
@@ -576,7 +623,7 @@
         btn.className =
           "custom-nav-link custom-nav-button group grow flex items-center space-x-3 rounded-2xl px-2.5 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 transition outline-none";
         bindIsolatedActivate(btn, function () {
-          openModal(item.modalTitle, item.modalHtml);
+          openModal(item.modalTitle, item.modalHtml, item.modalFooterLabel);
         });
         btn.appendChild(buildItemIcon(item));
         var bLabelWrap = document.createElement("div");

@@ -176,6 +176,7 @@ Notes:
 
 - If the icon does not show, check browser devtools for malformed `iconPath` data.
 - Complex icons with multiple `<path>` elements are not supported in this v1 shape; use a single-path icon.
+- Modal items can optionally include `modalFooterLabel` to customize the footer button text (defaults to `Okay, Let's Go!`).
 
 ## What The Patcher Does
 
